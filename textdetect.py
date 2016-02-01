@@ -22,12 +22,7 @@ def generate_vision_api_json(filename):
     request_array = []
     file = open(filename, "rb")
     image_json_object = {'features': [{"type": "TEXT_DETECTION", "maxResults": 10},
-                                      {"type": "LABEL_DETECTION", "maxResults": 10},
-                                      {"type": "FACE_DETECTION", "maxResults": 10},
-                                      {"type": "LANDMARK_DETECTION", "maxResults": 10},
-                                      {"type": "LOGO_DETECTION", "maxResults": 10},
-                                      {"type": "LABEL_DETECTION", "maxResults": 10},
-                                      {"type": "SAFE_SEARCH_DETECTION", "maxResults": 10}],
+                                      {"type": "LABEL_DETECTION", "maxResults": 10}],
                          'image': {'content': base64.b64encode(file.read()).decode('utf-8')}}
     file.close()
     request_array.append(image_json_object)
@@ -48,18 +43,18 @@ if __name__ == "__main__":
     parser = argparse. ArgumentParser ()
     parser.add_argument('-k', dest='api_key', required=True)
     parser.add_argument('-i', dest='data_path', help='path to images')
-    parser.add_argument('-o', dest='output', help='output file path')
     args = parser.parse_args()
     data_path = args.data_path #os.path.join(os.path.dirname(os.path.realpath(__file__)), "datatest//")
-    output = args.output
     key = args.api_key
     print(data_path)
     images_to_process = find_all_images(data_path)
-    if os.path.isfile(output):
+    print(len(images_to_process))
+    if os.path.exists('.//cvresults4.html'):
+        print("file found")
         html_table = ''
     else:
-        html_table = '<html><body><table border="1"><td><b>Image</b></td><td><b>Text search</b></td>' \
-                 '<td><b>Label detection</b></td><td><b>Face detection</b></td><td><b>Landmark detection</b></td><td><b>Logo detection</b></td><td><b>Safe search</b></td>'
+        html_table = '<html><body><table border="1"><tr><td><b>Image</b></td><td><b>Text search</b></td><td>Actual Number</td>' \
+                 '<td><b>Label detection</b></td></tr>'
     for i, image_path in enumerate(images_to_process):
         request_json = generate_vision_api_json(os.path.join(data_path, image_path))
         answer_json = {}
@@ -81,34 +76,17 @@ if __name__ == "__main__":
                 print('Retrying in 1 second...')
                 sleep(1)
         if 'textAnnotations' in answer_json:
-            ocrText = json.dumps(answer_json['textAnnotations']).encode('utf-8')
-            #print('Text search:', answer_json['textAnnotations'])
+            ocrText = answer_json['textAnnotations'][0]['description'] #json.dumps(answer_json['textAnnotations'][0]['description']).encode('utf-8')
+            #print('Text search:', answer_json['textAnnotations'][0]['description'])
         if 'labelAnnotations' in answer_json:
             labelText = json.dumps(answer_json['labelAnnotations']).encode('utf-8')
             #print('Label search:', answer_json['labelAnnotations'])
-        if 'faceAnnotations' in answer_json:
-            faceText = json.dumps(answer_json['faceAnnotations']).encode('utf-8')
-            #print('Face search:', answer_json['faceAnnotations'])
-        if 'logoAnnotations' in answer_json:
-            logoText = json.dumps(answer_json['logoAnnotations']).encode('utf-8')
-            #print('Logo search:', answer_json['logoAnnotations'])
-        if 'landmarkAnnotations' in answer_json:
-            landmarkText = json.dumps(answer_json['landmarkAnnotations']).encode('utf-8')
-            #print('Landmark search:', answer_json['landmarkAnnotations'])
-        if 'safeSearchAnnotation' in answer_json:
-            safeText = 'Adult: {}<br>Violence: {}<br>' \
-                       'Medical: {}<br>Spoof: {}<br>'.format(answer_json['safeSearchAnnotation']['adult'],
-                                                             answer_json['safeSearchAnnotation']['violence'],
-                                                             answer_json['safeSearchAnnotation']['medical'],
-                                                             answer_json['safeSearchAnnotation']['spoof'])
-            #print('Safe search:', answer_json['safeSearchAnnotation'])
-
+       
         html_table += '<tr><td><a href="{}"><img src="file:///{}" width="300px" /></a>' \
-                      '</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(os.path.join(data_path, image_path),
+                      '</td><td>{}</td><td></td><td>{}</td></tr>'.format(os.path.join(data_path, image_path),
                                                                            os.path.join(data_path, image_path),
-                                                                           ocrText,labelText,faceText,
-                                                                           landmarkText,logoText,safeText)
-        #final_html = html_table# + '</table></body></html>'
-    html_file = open(output, "a+")
+                                                                           ocrText,labelText)
+        #final_html = html + html_table# + '</table></body></html>'
+    html_file = open('.//cvresults4.html', "a+")
     html_file.write(html_table)
     html_file.close()
