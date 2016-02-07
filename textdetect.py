@@ -33,7 +33,7 @@ def generate_vision_api_json(filename):
 def process_google_vision_api(file_request_json,key):
     json_data = json.dumps(file_request_json).encode('utf-8')
     req = urllib.request.Request(
-        url='https://vision.googleapis.com/v1alpha1/images:annotate?key='+key)
+        url='https://vision.googleapis.com/v1/images:annotate?key='+key)
     req.add_header('Content-Type', 'application/json')
     response = urllib.request.urlopen(req, json_data)
     return json.loads(response.read().decode("utf-8"))['responses'][0]
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     print(data_path)
     images_to_process = find_all_images(data_path)
     print(len(images_to_process))
-    if os.path.exists('.//cvresults4.html'):
+    if os.path.exists('.//cvresults6.html'):
         print("file found")
         html_table = ''
     else:
@@ -87,6 +87,6 @@ if __name__ == "__main__":
                                                                            os.path.join(data_path, image_path),
                                                                            ocrText,labelText)
         #final_html = html + html_table# + '</table></body></html>'
-    html_file = open('.//cvresults4.html', "a+")
+    html_file = open('.//cvresults6.html', "a+")
     html_file.write(html_table)
     html_file.close()

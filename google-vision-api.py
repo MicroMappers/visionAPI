@@ -38,7 +38,7 @@ def generate_vision_api_json(filename):
 def process_google_vision_api(file_request_json,key):
     json_data = json.dumps(file_request_json).encode('utf-8')
     req = urllib.request.Request(
-        url='https://vision.googleapis.com/v1alpha1/images:annotate?key='+key)
+        url='https://vision.googleapis.com/v1/images:annotate?key='+key)
     req.add_header('Content-Type', 'application/json')
     response = urllib.request.urlopen(req, json_data)
     return json.loads(response.read().decode("utf-8"))['responses'][0]
